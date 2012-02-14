@@ -41,7 +41,8 @@
       (re-search-backward start-key-words)
       (set-mark (point))
       (re-search-forward start-key-words))
-    (unless (re-search-forward end-key-words (point-max) t)
+    (if (re-search-forward end-key-words (point-max) t)
+	(goto-char (match-beginning 0))
       (end-of-buffer))
    (forward-line 0)
    (exchange-point-and-mark)))
@@ -52,7 +53,7 @@
 
 (defun er/mark-feature-step ()
   (interactive)
-  (er--block-between-keywords "\\(And\\|Given\\|When\\|Then\\)"  "\\(And\\|Given\\|When\\|Then\\|Scenario:\\)"))
+  (er--block-between-keywords "\\(And\\|Given\\|When\\|Then\\)"  "\\(And\\|Given\\|When\\|Then\\|\\(\n+\\)\\s-*Scenario:\\)"))
 
 (defun er/add-feature-mode-expansions ()
   "Adds cucumber-specific expansions for buffers in feature-mode"
