@@ -20,10 +20,6 @@
 
 ;;; Commentary:
 
-;; Normal javascript-mode does not have a javascript-mode-hook, which is one of
-;; the reasons I switched to js2-mode. If you want to use this with
-;; javascript-mode, I'm sure there's a way. It's Emacs after all.
-
 ;; Extra expansions for JavaScript that I've found useful so far:
 ;;
 ;;    er/mark-js-function
@@ -39,6 +35,8 @@
 
 ;;; Code:
 
+(require 'expand-region-core)
+
 (defun er/mark-js-function ()
   "Mark the current JavaScript function."
   (interactive)
@@ -46,7 +44,8 @@
       (forward-char 8)
     (error nil))
   (word-search-backward "function")
-  (while (er--point-inside-string-p)
+  (while (or (er--point-inside-string-p)
+             (er--point-is-in-comment-p))
     (word-search-backward "function"))
   (set-mark (point))
   (while (not (looking-at "{"))
@@ -61,7 +60,8 @@
       (forward-char 6)
     (error nil))
   (word-search-backward "return")
-  (while (er--point-inside-string-p)
+  (while (or (er--point-inside-string-p)
+             (er--point-is-in-comment-p))
     (word-search-backward "return"))
   (set-mark (point))
   (while (not (looking-at ";"))
@@ -78,7 +78,8 @@
       (forward-char 6)
     (error nil))
   (word-search-backward "return")
-  (while (er--point-inside-string-p)
+  (while (or (er--point-inside-string-p)
+             (er--point-is-in-comment-p))
     (word-search-backward "return"))
   (search-forward " ")
   (set-mark (point))
@@ -95,7 +96,8 @@
       (forward-char 2)
     (error nil))
   (word-search-backward "if")
-  (while (er--point-inside-string-p)
+  (while (or (er--point-inside-string-p)
+             (er--point-is-in-comment-p))
     (word-search-backward "if"))
   (set-mark (point))
   (while (not (looking-at "("))
@@ -120,7 +122,7 @@
     (if (looking-at "\\s(")
         (forward-list)
       (forward-char)))
-  (when (looking-back "[\s\n]")
+  (when (er/looking-back-max "[\s\n]" 400)
     (search-backward-regexp "[^\s\n]")
     (forward-char))
   (exchange-point-and-mark))
@@ -131,18 +133,19 @@ If point is inside the value, that will be marked first anyway."
   (interactive)
   (when (or (looking-at "\"?\\(\\s_\\|\\sw\\| \\)*\":")
             (looking-at "\\(\\s_\\|\\sw\\)*:")
-            (looking-back ": ?"))
+            (er/looking-back-max ": ?" 2))
     (search-backward-regexp "[{,]")
     (forward-char)
     (search-forward-regexp "[^\s\n]")
     (backward-char)
     (set-mark (point))
     (search-forward ":")
-    (while (not (looking-at "[},]"))
+    (while (or (not (looking-at "[},]"))
+               (er--point-inside-string-p))
       (if (looking-at "\\s(")
           (forward-list)
         (forward-char)))
-    (when (looking-back "[\s\n]")
+    (when (er/looking-back-max "[\s\n]" 400)
       (search-backward-regexp "[^\s\n]")
       (forward-char))
     (exchange-point-and-mark)))
@@ -158,8 +161,9 @@ If point is inside the value, that will be marked first anyway."
                                                     er/mark-js-inner-return
                                                     er/mark-js-outer-return))))
 
-(add-hook 'js2-mode-hook 'er/add-js-mode-expansions)
-(add-hook 'js3-mode-hook 'er/add-js-mode-expansions)
+(er/enable-mode-expansions 'js-mode 'er/add-js-mode-expansions)
+(er/enable-mode-expansions 'js2-mode 'er/add-js-mode-expansions)
+(er/enable-mode-expansions 'js3-mode 'er/add-js-mode-expansions)
 
 (provide 'js-mode-expansions)
 

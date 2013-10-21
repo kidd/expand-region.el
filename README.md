@@ -1,4 +1,4 @@
-# expand-region.el
+# expand-region.el [![Build Status](https://secure.travis-ci.org/magnars/expand-region.el.png)](http://travis-ci.org/magnars/expand-region.el)
 
 Expand region increases the selected region by semantic units. Just keep
 pressing the key until it selects what you want.
@@ -15,9 +15,9 @@ and finally to the entire sexp.
 You can set it up like this:
 
     (require 'expand-region)
-    (global-set-key (kbd "C-@") 'er/expand-region)
+    (global-set-key (kbd "C-=") 'er/expand-region)
 
-There's also `er/contract-region` if you expand too far.
+You can contract the region again with a negative prefix, if you expand too far.
 
 ## Video
 
@@ -30,13 +30,17 @@ nature of the basic expansions:
 
     er/mark-word
     er/mark-symbol
+    er/mark-symbol-with-prefix
+    er/mark-next-accessor
     er/mark-method-call
-    er/mark-comment
-    er/mark-comment-block
     er/mark-inside-quotes
     er/mark-outside-quotes
     er/mark-inside-pairs
     er/mark-outside-pairs
+    er/mark-comment
+    er/mark-url
+    er/mark-email
+    er/mark-defun
 
 However, most languages also will benefit from some specially crafted
 expansions. For instance, expand-region comes with these extra expansions for
@@ -70,7 +74,7 @@ text-mode. Incidentally Emacs already comes with `mark-paragraph` and
 
     (add-hook 'text-mode-hook 'er/add-text-mode-expansions)
 
-Add that to its own file, and require it at the bottom of this one,
+Add that to its own file, and add it to the `expand-region.el`-file,
 where it says "Mode-specific expansions"
 
 **Warning:** Badly written expansions might slow down expand-region
@@ -84,19 +88,75 @@ great if you opened a pull-request. The repo is at:
 
     https://github.com/magnars/expand-region.el
 
+All changes must be accompanied by feature tests.
+They are written in [Ecukes](http://ecukes.info), a Cucumber for Emacs.
+
+To fetch the test dependencies, install
+[cask](https://github.com/rejeep/cask.el) if you haven't already,
+then:
+
+    $ cd /path/to/expand-region
+    $ cask
+
+Run the tests with:
+
+    $ ./run-tests.sh
+
+If feature tests are missing for the mode you are changing, please make
+sure to add a set of basic tests around the functionality you're changing.
+
 ## Contributors
 
 * [Josh Johnston](https://github.com/joshwnj) contributed `er/contract-region`
 * [Le Wang](https://github.com/lewang) contributed consistent handling of the mark ring, expanding into pairs/quotes just left of the cursor, and general code clean-up.
-* [Matt Briggs](https://github.com/mbriggs) contributed expansions for ruby-mode.
-* [Ivan Andrus](https://github.com/gvol) contributed expansions for various modes.
 * [Raimon Grau](https://github.com/kidd) added support for when transient-mark-mode is off.
+* [Roland Walker](https://github.com/rolandwalker) added option to copy the contents of the most recent action to a register, and some fixes.
+* [Damien Cassou](https://github.com/DamienCassou) added option to continue expanding/contracting with fast keys after initial expand.
+* [Sylvain Rousseau](https://github.com/thisirs) fixed loads of little annoyances.
+
+### Language specific contributions
+
+* [Matt Briggs](https://github.com/mbriggs), [Jorge Dias](https://github.com/diasjorge) and [Le Wang](https://github.com/lewang) contributed Ruby expansions.
+* [Ivan Andrus](https://github.com/gvol), [fgeller](https://github.com/fgeller), [edmccard](https://github.com/edmccard) and [Rotem Yaari](https://github.com/vmalloc) contributed Python expansions.
+* [François Févotte](https://github.com/ffevotte) contributed C and C++ expansions.
+* [Ivan Andrus](https://github.com/gvol) contributed text-mode, LaTeX-mode and nxml-mode expansions.
+* [Gleb Peregud](https://github.com/gleber) contributed Erlang expansions.
+* [Mark Hepburn](https://github.com/markhepburn) contributed Octave expansions.
+* [Rotem Yaari](https://github.com/vmalloc) also contributed an adapter for the region expansion in web-mode.
+* [Kang-min Liu](https://github.com/gugod) contributed Perl expansions.
+* [Alexis Gallagher](https://github.com/algal) contributs Standard ML expansions.
 
 Thanks!
 
+## Changelist
+
+### From 0.8 to 0.9
+
+* Improve org-, clojure-, python-, latex-, cc- and ruby-modes
+* Add basic expansions: email and url
+* Add sml-mode expansions (Alexis Gallagher)
+* Add cperl-mode expansions (Kang-min Liu)
+* Add octave-mode expansions (Mark Hepburn)
+* Add web-mode expansions (Rotem Yaari)
+* Use Carton for dev-dependencies
+* Fix bad behavior in minibuffer (Sylvain Rousseau)
+* More robust comment expansions
+* Improve loading of expansions for all major modes
+
+### From 0.7 to 0.8
+
+* Improve js-, ruby-, python- and latex-modes
+* Support built-in javascript-mode
+* Handle narrowed buffers correctly
+* Include mode-specific expansions when autoloading
+* Provide option to copy the contents of the most recent action to a register
+* Add cc-mode specific expansions
+* Add customization to turn off skipping whitespace when expanding
+* Continue expanding/contracting with one key press (optional)
+
 ## License
 
-Copyright (C) 2011 Magnar Sveen
+Copyright (C) 2011-2013 Magnar Sveen
 
 Author: Magnar Sveen <magnars@gmail.com>
 Keywords: marking region

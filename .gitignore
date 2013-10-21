@@ -1,1 +1,4 @@
 *.elc
+.rvmrc
+/TAGS
+elpa

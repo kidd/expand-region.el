@@ -1,4 +1,4 @@
-;;; css-mode-expansions.el --- CSS-specific expansions for expand-region
+;;; enh-ruby-mode-expansions.el --- Expansions for enh-ruby-mode
 
 ;; Copyright (C) 2011 Magnar Sveen
 
@@ -20,33 +20,20 @@
 
 ;;; Commentary:
 
-;; For now I have only found the need for mark-css-declaration.
+;; enh-ruby-mode doesn't use ruby-mode's mark-defun - it has its own.
 ;;
-;; Feel free to contribute any other expansions for CSS at
+;; Feel free to contribute any other expansions for enh-ruby-mode at
 ;;
 ;;     https://github.com/magnars/expand-region.el
 
 ;;; Code:
 
-(require 'expand-region-core)
-
-(defun er/mark-css-declaration ()
-  "Marks one CSS declaration, eg. font-weight: bold;"
-  (interactive)
-  (search-backward-regexp "[;{] ?" (line-beginning-position))
-  (forward-char)
-  (set-mark (point))
-  (search-forward ";" (line-end-position))
-  (exchange-point-and-mark))
-
-(defun er/add-css-mode-expansions ()
-  "Adds CSS-specific expansions for buffers in css-mode"
+(defun er/add-enh-ruby-mode-expansions ()
+  "Adds Ruby-specific expansions for buffers in enh-ruby-mode"
   (set (make-local-variable 'er/try-expand-list) (append
-                                                  er/try-expand-list
-                                                  '(er/mark-css-declaration))))
+                                                  (remove 'er/mark-defun er/try-expand-list)
+                                                  '(enh-ruby-mark-defun))))
 
-(er/enable-mode-expansions 'css-mode 'er/add-css-mode-expansions)
+(er/enable-mode-expansions 'enh-ruby-mode 'er/add-enh-ruby-mode-expansions)
 
-(provide 'css-mode-expansions)
-
-;; css-mode-expansions.el ends here
+(provide 'enh-ruby-mode-expansions)
